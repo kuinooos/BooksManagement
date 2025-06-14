@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>图书搜索修复验证</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 20px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        button { 
+            padding: 12px 24px; 
+            margin: 8px; 
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            background: #6c5ce7;
+            color: white;
+            transition: all 0.3s;
+        }
+        button:hover { 
+            background: #5f3dc4;
+            transform: translateY(-2px);
+        }
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+            width: 250px;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .book-result {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .search-tests {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            font-family: monospace;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 图书搜索功能修复验证</h1>
+        <p>我已经修复了图书搜索的SQL查询，现在让我们测试搜索功能是否正常工作。</p>
+        
+        <!-- 系统状态 -->
+        <div class="test-section">
+            <h3>📡 系统状态检查</h3>
+            <button onclick="checkSystemStatus()">检查系统状态</button>
+            <div id="systemStatus"></div>
+        </div>
+
+        <!-- 搜索测试 -->
+        <div class="test-section">
+            <h3>🔍 图书搜索测试</h3>
+            <div>
+                <input type="text" id="searchInput" placeholder="输入搜索关键字" value="大雪">
+                <button onclick="performSearch()">搜索图书</button>
+            </div>
+            
+            <h4>快速测试按钮：</h4>
+            <div class="search-tests">
+                <button onclick="testSearch('大雪')">搜索"大雪"</button>
+                <button onclick="testSearch('三生')">搜索"三生"</button>
+                <button onclick="testSearch('何以')">搜索"何以"</button>
+                <button onclick="testSearch('人类')">搜索"人类"</button>
+                <button onclick="testSearch('东野')">搜索"东野"</button>
+                <button onclick="testSearch('明朝')">搜索"明朝"</button>
+                <button onclick="testSearch('10000001')">搜索ID"10000001"</button>
+                <button onclick="testSearch('控方证人')">搜索"控方证人"</button>
+            </div>
+            
+            <div id="searchResults"></div>
+        </div>
+
+        <!-- 修复内容说明 -->
+        <div class="test-section">
+            <h3>🛠️ 修复内容说明</h3>
+            <p><strong>问题分析：</strong></p>
+            <ul>
+                <li>原始SQL查询：<code>WHERE book_id like ? or name like ?</code></li>
+                <li>问题：book_id是BIGINT类型，直接用LIKE可能有兼容性问题</li>
+                <li>问题：只搜索书名，用户可能想搜索作者或出版社</li>
+            </ul>
+            
+            <p><strong>修复方案：</strong></p>
+            <ul>
+                <li>✅ 使用CAST将book_id转换为字符串：<code>CAST(book_id AS CHAR) like ?</code></li>
+                <li>✅ 扩展搜索范围：图书ID、书名、作者、出版社</li>
+                <li>✅ 更新参数数组从2个改为4个参数</li>
+            </ul>
+            
+            <p><strong>新的SQL查询：</strong></p>
+            <code>SELECT * FROM book_info WHERE CAST(book_id AS CHAR) like ? or name like ? or author like ? or publish like ?</code>
+        </div>
+
+        <!-- 调试日志 -->
+        <div class="test-section">
+            <h3>📋 调试日志</h3>
+            <textarea id="debugLog" readonly></textarea>
+            <button onclick="clearLog()">清空日志</button>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const debugLog = document.getElementById('debugLog');
+            debugLog.value += `[${timestamp}] ${message}\n`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('debugLog').value = '';
+        }
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = 'result ' + type;
+        }
+
+        function checkSystemStatus() {
+            log('检查系统状态...');
+            fetch('http://localhost:9000/allbooks.html')
+                .then(response => {
+                    if (response.ok) {
+                        showResult('systemStatus', '✅ 系统运行正常，可以开始测试搜索功能', 'success');
+                        log('系统状态正常');
+                        return response.text();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const bookRows = doc.querySelectorAll('tbody tr');
+                    log(`数据库中共有 ${bookRows.length} 本图书`);
+                })
+                .catch(error => {
+                    showResult('systemStatus', `❌ 系统连接失败: ${error.message}`, 'error');
+                    log(`系统检查失败: ${error.message}`);
+                });
+        }
+
+        function testSearch(keyword) {
+            document.getElementById('searchInput').value = keyword;
+            performSearch();
+        }
+
+        function performSearch() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) {
+                showResult('searchResults', '❌ 请输入搜索关键字', 'error');
+                return;
+            }
+
+            log(`开始搜索图书: "${keyword}"`);
+            showResult('searchResults', '🔍 正在搜索...', 'warning');
+
+            const formData = new FormData();
+            formData.append('searchWord', keyword);
+
+            fetch('http://localhost:9000/querybook.html', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                log(`搜索响应状态: ${response.status}`);
+                return response.text();
+            })
+            .then(html => {
+                parseSearchResults(html, keyword);
+            })
+            .catch(error => {
+                log(`搜索失败: ${error.message}`);
+                showResult('searchResults', `❌ 搜索请求失败: ${error.message}`, 'error');
+            });
+        }
+
+        function parseSearchResults(html, keyword) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // 检查是否有错误消息
+            const errorAlert = doc.querySelector('.alert-danger');
+            if (errorAlert) {
+                const errorText = errorAlert.textContent.trim();
+                if (errorText.includes('没有匹配的图书')) {
+                    showResult('searchResults', `⚠️ 搜索"${keyword}"：没有找到匹配的图书`, 'warning');
+                    log(`搜索"${keyword}"：没有找到匹配的图书`);
+                } else {
+                    showResult('searchResults', `❌ 搜索错误：${errorText}`, 'error');
+                    log(`搜索错误：${errorText}`);
+                }
+                return;
+            }
+
+            // 解析搜索结果
+            const bookRows = doc.querySelectorAll('tbody tr');
+            if (bookRows.length > 0) {
+                let resultsHtml = `<h4>✅ 搜索"${keyword}"成功！找到 ${bookRows.length} 本图书：</h4>`;
+                
+                bookRows.forEach((row, index) => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 4) {
+                        const bookName = cells[0].textContent.trim();
+                        const author = cells[1].textContent.trim();
+                        const publisher = cells[2].textContent.trim();
+                        const isbn = cells[3].textContent.trim();
+                        
+                        resultsHtml += `<div class="book-result">
+                            <strong>${index + 1}. ${bookName}</strong><br>
+                            <small>作者: ${author} | 出版社: ${publisher} | ISBN: ${isbn}</small>
+                        </div>`;
+                    }
+                });
+                
+                showResult('searchResults', resultsHtml, 'success');
+                log(`搜索"${keyword}"成功：找到 ${bookRows.length} 本图书`);
+            } else {
+                // 检查页面内容，可能是其他问题
+                if (html.includes('全部图书')) {
+                    showResult('searchResults', `⚠️ 搜索"${keyword}"：返回了全部图书列表，可能搜索参数未正确处理`, 'warning');
+                    log(`搜索"${keyword}"：返回了全部图书列表`);
+                } else {
+                    showResult('searchResults', `❌ 搜索"${keyword}"：页面格式异常`, 'error');
+                    log(`搜索"${keyword}"：页面格式异常`);
+                }
+            }
+        }
+
+        // 页面加载时自动检查系统状态
+        window.onload = function() {
+            log('图书搜索修复验证工具已加载');
+            setTimeout(checkSystemStatus, 1000);
+        };
+    </script>
+</body>
+</html>

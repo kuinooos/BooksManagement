@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+        <!-- 扫描类包，将标注Spring注解的类自动转化为Bean，同时完成Bean的注入  -->
+        <context:component-scan base-package="com.book.dao"/>
+    <context:component-scan base-package="com.book.service"/>
+    
+    <!--  MySQL 5.7 兼容配置 - 移除了serverTimezone参数 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close"
+          p:driverClassName="com.mysql.jdbc.Driver"
+          p:url="jdbc:mysql://localhost:3306/library?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;createDatabaseIfNotExist=true&amp;characterEncoding=utf8&amp;useUnicode=true&amp;autoReconnect=true&amp;useAffectedRows=true"
+            p:username="root"
+          p:password="chen20040421"/>
+    <!-- 定义JDBC模板Bean   -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate"
+          p:dataSource-ref="dataSource"/>
+
+</beans>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书管理系统 - 功能验证测试</title>
+    <style>
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            background: #f9f9f9; 
+        }
+        .test-title { 
+            color: #2c3e50; 
+            border-bottom: 2px solid #3498db; 
+            padding-bottom: 5px; 
+            margin-bottom: 15px; 
+        }
+        .test-item { 
+            margin: 10px 0; 
+            padding: 10px; 
+            background: white; 
+            border-radius: 3px; 
+        }
+        .status { 
+            font-weight: bold; 
+            padding: 3px 8px; 
+            border-radius: 3px; 
+            margin-left: 10px; 
+        }
+        .success { background: #d4edda; color: #155724; }
+        .warning { background: #fff3cd; color: #856404; }
+        .error { background: #f8d7da; color: #721c24; }
+        .btn { 
+            padding: 8px 15px; 
+            margin: 5px; 
+            border: none; 
+            border-radius: 3px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            display: inline-block; 
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .test-data { 
+            background: #e7f3ff; 
+            padding: 10px; 
+            border-radius: 3px; 
+            margin: 10px 0; 
+            font-family: monospace; 
+        }
+        iframe { 
+            width: 100%; 
+            height: 300px; 
+            border: 1px solid #ddd; 
+            border-radius: 3px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #2c3e50;">📚 图书管理系统功能验证测试</h1>
+        
+        <div class="test-section">
+            <h2 class="test-title">🔧 系统修复完成状态</h2>
+            <div class="test-item">
+                ✅ <strong>HTTP 400错误修复</strong><span class="status success">已完成</span>
+                <ul>
+                    <li>数据库ISBN字段扩展至varchar(20)</li>
+                    <li>增强数据验证和异常处理</li>
+                    <li>前端ISBN长度验证</li>
+                </ul>
+            </div>
+            <div class="test-item">
+                ✅ <strong>中文字符编码修复</strong><span class="status success">已完成</span>
+                <ul>
+                    <li>数据库连接字符编码配置</li>
+                    <li>Web应用字符编码过滤器</li>
+                    <li>Controller层编码处理增强</li>
+                    <li>清理数据库乱码数据</li>
+                </ul>
+            </div>
+            <div class="test-item">
+                ✅ <strong>系统配置修复</strong><span class="status success">已完成</span>
+                <ul>
+                    <li>Spring MVC配置错误修复</li>
+                    <li>系统启动问题解决</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="test-title">🚀 快速功能测试</h2>
+            <div class="test-item">
+                <strong>1. 系统首页访问</strong>
+                <a href="http://localhost:9000" target="_blank" class="btn btn-primary">打开系统首页</a>
+                <span class="status warning">请验证页面正常加载</span>
+            </div>
+            <div class="test-item">
+                <strong>2. 管理员登录</strong>
+                <a href="http://localhost:9000/admin" target="_blank" class="btn btn-primary">管理员登录</a>
+                <div class="test-data">
+                    默认管理员账号: admin / admin
+                </div>
+            </div>
+            <div class="test-item">
+                <strong>3. 图书添加功能</strong>
+                <a href="http://localhost:9000/admin/book_add" target="_blank" class="btn btn-success">添加图书</a>
+                <span class="status warning">测试中文图书添加</span>
+            </div>
+            <div class="test-item">
+                <strong>4. 图书查询功能</strong>
+                <a href="http://localhost:9000/book/query" target="_blank" class="btn btn-success">图书查询</a>
+                <span class="status warning">测试中文关键字搜索</span>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="test-title">📝 测试用例数据</h2>
+            <div class="test-item">
+                <strong>中文图书添加测试数据：</strong>
+                <div class="test-data">
+                    图书名称: 白夜行<br>
+                    作者: 东野圭吾<br>
+                    出版社: 南海出版公司<br>
+                    ISBN: 9787544258746<br>
+                    分类: 推理小说<br>
+                    价格: 39.50<br>
+                    库存: 10
+                </div>
+            </div>
+            <div class="test-item">
+                <strong>中文关键字搜索测试：</strong>
+                <div class="test-data">
+                    搜索关键字1: "大雪"（应该能找到"大雪中的山庄"）<br>
+                    搜索关键字2: "东野"（应该能找到"东野圭吾"的作品）<br>
+                    搜索关键字3: "白夜"（应该能找到"白夜行"）
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="test-title">📊 详细功能测试清单</h2>
+            <div class="test-item">
+                <input type="checkbox" id="test1"> <label for="test1">系统首页能正常访问</label>
+            </div>
+            <div class="test-item">
+                <input type="checkbox" id="test2"> <label for="test2">管理员能正常登录</label>
+            </div>
+            <div class="test-item">
+                <input type="checkbox" id="test3"> <label for="test3">能成功添加中文图书</label>
+            </div>
+            <div class="test-item">
+                <input type="checkbox" id="test4"> <label for="test4">中文字符显示正常（无乱码）</label>
+            </div>
+            <div class="test-item">
+                <input type="checkbox" id="test5"> <label for="test5">按图书ID搜索功能正常</label>
+            </div>
+            <div class="test-item">
+                <input type="checkbox" id="test6"> <label for="test6">中文关键字搜索功能正常</label>
+            </div>
+            <div class="test-item">
+                <input type="checkbox" id="test7"> <label for="test7">ISBN长度验证正常工作</label>
+            </div>
+            <div class="test-item">
+                <input type="checkbox" id="test8"> <label for="test8">图书列表显示正常</label>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="test-title">🔍 问题排查指南</h2>
+            <div class="test-item">
+                <strong>如果遇到问题，请检查：</strong>
+                <ul>
+                    <li>确认Jetty服务器正在运行 (http://localhost:9000)</li>
+                    <li>确认MySQL数据库服务正常</li>
+                    <li>检查数据库连接配置是否正确</li>
+                    <li>确认ISBN字段修复SQL已执行</li>
+                    <li>确认乱码数据已清理</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="test-title">📋 测试报告</h2>
+            <div class="test-item">
+                <strong>测试时间：</strong><span id="testTime"></span><br>
+                <strong>系统状态：</strong><span class="status success">修复完成，等待验证</span><br>
+                <strong>主要修复：</strong>
+                <ul>
+                    <li>✅ HTTP 400错误 - 已修复</li>
+                    <li>✅ 中文字符乱码 - 已修复</li>
+                    <li>✅ 系统启动问题 - 已修复</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 显示当前时间
+        document.getElementById('testTime').textContent = new Date().toLocaleString('zh-CN');
+        
+        // 添加测试完成统计
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateProgress);
+        });
+        
+        function updateProgress() {
+            const total = checkboxes.length;
+            const completed = document.querySelectorAll('input[type="checkbox"]:checked').length;
+            const percentage = Math.round((completed / total) * 100);
+            
+            if (!document.getElementById('progress')) {
+                const progressDiv = document.createElement('div');
+                progressDiv.id = 'progress';
+                progressDiv.style.cssText = 'position: fixed; top: 10px; right: 10px; background: #007bff; color: white; padding: 10px; border-radius: 5px; font-weight: bold;';
+                document.body.appendChild(progressDiv);
+            }
+            
+            document.getElementById('progress').textContent = `测试进度: ${completed}/${total} (${percentage}%)`;
+        }
+    </script>
+</body>
+</html>

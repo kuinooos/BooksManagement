@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>数据库诊断工具</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 20px; 
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        .test-btn { 
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin: 5px;
+            font-weight: bold;
+        }
+        .test-btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        #result { 
+            margin-top: 20px; 
+            padding: 15px; 
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px; 
+            white-space: pre-wrap; 
+            font-family: monospace;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .error { color: #ff6b6b; }
+        .success { color: #4CAF50; }
+        .info { color: #64b5f6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 图书搜索功能诊断工具</h1>
+        
+        <div class="test-section">
+            <h3>📊 数据库检查</h3>
+            <button class="test-btn" onclick="checkAllBooks()">检查所有图书</button>
+            <button class="test-btn" onclick="checkBookCount()">检查图书数量</button>
+            <button class="test-btn" onclick="testBookSearch()">测试图书搜索</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 搜索测试</h3>
+            <input type="text" id="searchInput" placeholder="输入搜索关键词" style="padding: 10px; margin: 5px; border-radius: 5px; border: none; width: 200px;">
+            <button class="test-btn" onclick="searchBooks()">搜索图书</button>
+            <button class="test-btn" onclick="matchBooks()">匹配计数</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 SQL语句测试</h3>
+            <button class="test-btn" onclick="testSQL()">测试SQL语句</button>
+            <button class="test-btn" onclick="checkDBConnection()">检查数据库连接</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const result = document.getElementById('result');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            result.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>\n`;
+            result.scrollTop = result.scrollHeight;
+        }
+
+        function clearResult() {
+            document.getElementById('result').innerHTML = '';
+        }
+
+        async function makeRequest(url, data = null) {
+            try {
+                const options = {
+                    method: data ? 'POST' : 'GET',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                };
+                
+                if (data) {
+                    options.body = new URLSearchParams(data);
+                }
+                
+                const response = await fetch(url, options);
+                return await response.text();
+            } catch (error) {
+                throw new Error(`请求失败: ${error.message}`);
+            }
+        }
+
+        async function checkAllBooks() {
+            showResult('🔍 检查所有图书数据...', 'info');
+            try {
+                const result = await makeRequest('http://localhost:9000/allbooks.html');
+                if (result.includes('图书信息')) {
+                    showResult('✅ 成功获取图书列表页面', 'success');
+                    // 分析页面内容
+                    const bookCount = (result.match(/class="btn btn-success btn-xs">详情/g) || []).length;
+                    showResult(`📊 页面中显示 ${bookCount} 本图书`, 'info');
+                } else {
+                    showResult('❌ 获取图书列表失败', 'error');
+                }
+            } catch (error) {
+                showResult(`❌ 错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBookSearch() {
+            showResult('🧪 测试图书搜索功能...', 'info');
+            try {
+                // 测试搜索"java"
+                const result = await makeRequest('http://localhost:9000/reader_querybook_do.html', {
+                    searchWord: 'java'
+                });
+                
+                if (result.includes('没有匹配的图书')) {
+                    showResult('❌ 搜索"java"没有找到匹配的图书', 'error');
+                } else if (result.includes('查询结果')) {
+                    showResult('✅ 搜索"java"找到了匹配的图书', 'success');
+                } else {
+                    showResult('⚠️ 搜索结果未知', 'info');
+                }
+            } catch (error) {
+                showResult(`❌ 搜索测试错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function searchBooks() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) {
+                showResult('❌ 请输入搜索关键词', 'error');
+                return;
+            }
+
+            showResult(`🔍 搜索关键词: "${keyword}"`, 'info');
+            try {
+                const result = await makeRequest('http://localhost:9000/reader_querybook_do.html', {
+                    searchWord: keyword
+                });
+                
+                if (result.includes('没有匹配的图书')) {
+                    showResult(`❌ 没有找到包含"${keyword}"的图书`, 'error');
+                } else if (result.includes('查询结果')) {
+                    showResult(`✅ 找到了包含"${keyword}"的图书`, 'success');
+                    // 统计结果数量
+                    const bookCount = (result.match(/readerbookdetail\.html/g) || []).length;
+                    showResult(`📊 找到 ${bookCount} 本相关图书`, 'info');
+                } else {
+                    showResult('⚠️ 搜索结果格式异常', 'info');
+                }
+            } catch (error) {
+                showResult(`❌ 搜索错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function matchBooks() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) {
+                showResult('❌ 请输入搜索关键词', 'error');
+                return;
+            }
+
+            showResult(`🔢 检查"${keyword}"的匹配数量...`, 'info');
+            // 这里我们通过搜索页面来间接测试匹配功能
+            await searchBooks();
+        }
+
+        async function testSQL() {
+            showResult('🗄️ 测试SQL查询语句...', 'info');
+            showResult('SQL: SELECT * FROM book_info WHERE CAST(book_id AS CHAR) like ? or name like ? or author like ? or publish like ?', 'info');
+            showResult('参数格式: %keyword%, %keyword%, %keyword%, %keyword%', 'info');
+            
+            // 测试几个常见的搜索词
+            const testWords = ['java', 'spring', '数据库', '1'];
+            for (const word of testWords) {
+                showResult(`测试关键词: "${word}"`, 'info');
+                try {
+                    const result = await makeRequest('http://localhost:9000/reader_querybook_do.html', {
+                        searchWord: word
+                    });
+                    
+                    if (result.includes('没有匹配的图书')) {
+                        showResult(`  ❌ "${word}" - 无匹配结果`, 'error');
+                    } else if (result.includes('查询结果')) {
+                        showResult(`  ✅ "${word}" - 有匹配结果`, 'success');
+                    } else {
+                        showResult(`  ⚠️ "${word}" - 结果未知`, 'info');
+                    }
+                } catch (error) {
+                    showResult(`  ❌ "${word}" - 测试失败: ${error.message}`, 'error');
+                }
+                
+                // 添加延迟避免请求过快
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        async function checkDBConnection() {
+            showResult('🔗 检查数据库连接...', 'info');
+            try {
+                // 通过访问主页来检查应用是否正常运行
+                const result = await makeRequest('http://localhost:9000/login.html');
+                if (result.includes('登录') || result.includes('用户类型')) {
+                    showResult('✅ 应用服务器正常运行', 'success');
+                    showResult('✅ 数据库连接应该正常（能访问登录页面）', 'success');
+                } else {
+                    showResult('❌ 应用服务器可能有问题', 'error');
+                }
+            } catch (error) {
+                showResult(`❌ 无法连接到服务器: ${error.message}`, 'error');
+                showResult('请确保服务器在 http://localhost:9000 运行', 'info');
+            }
+        }
+
+        async function checkBookCount() {
+            showResult('📊 检查数据库中的图书数量...', 'info');
+            try {
+                // 通过管理员页面检查图书总数
+                const result = await makeRequest('http://localhost:9000/allbooks.html');
+                
+                // 尝试计算页面中的图书数量
+                const bookRows = result.match(/<tr>\s*<td>.*?<\/td>\s*<td>.*?<\/td>/g);
+                if (bookRows) {
+                    const count = bookRows.length - 1; // 减去表头
+                    showResult(`📚 数据库中大约有 ${count} 本图书`, count > 0 ? 'success' : 'error');
+                } else {
+                    showResult('❌ 无法确定图书数量，可能数据库为空', 'error');
+                }
+            } catch (error) {
+                showResult(`❌ 检查图书数量失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时自动检查基本连接
+        window.onload = function() {
+            showResult('🚀 图书搜索诊断工具已启动', 'success');
+            showResult('请确保图书管理系统在 http://localhost:9000 运行', 'info');
+            setTimeout(checkDBConnection, 1000);
+        };
+    </script>
+</body>
+</html>

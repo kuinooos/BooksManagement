@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>图书搜索功能诊断</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 20px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        button { 
+            padding: 12px 24px; 
+            margin: 8px; 
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: #74b9ff;
+            color: white;
+        }
+        button:hover { 
+            background: #0984e3; 
+            transform: translateY(-2px); 
+        }
+        .success { color: #00b894; font-weight: bold; }
+        .error { color: #e17055; font-weight: bold; }
+        .info { color: #0984e3; font-weight: bold; }
+        textarea { 
+            width: 100%; 
+            height: 300px; 
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+            width: 200px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .book-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: white;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 图书搜索功能诊断工具</h1>
+        
+        <!-- 数据库连接测试 -->
+        <div class="test-section">
+            <h3>🔗 数据库连接测试</h3>
+            <button onclick="testDatabaseConnection()">测试数据库连接</button>
+            <button onclick="checkBookData()">检查图书数据</button>
+            <div id="dbResult"></div>
+        </div>
+
+        <!-- 图书搜索测试 -->
+        <div class="test-section">
+            <h3>🔍 图书搜索功能测试</h3>
+            <div>
+                <input type="text" id="searchKeyword" placeholder="输入图书名称或关键字" value="大雪">
+                <button onclick="testBookSearch()">管理员搜索测试</button>
+                <button onclick="testReaderSearch()">读者搜索测试</button>
+            </div>
+            <div>
+                <h4>常用测试关键字：</h4>
+                <button onclick="testSpecificBook('大雪')">大雪</button>
+                <button onclick="testSpecificBook('三生')">三生</button>
+                <button onclick="testSpecificBook('何以')">何以</button>
+                <button onclick="testSpecificBook('人类')">人类</button>
+                <button onclick="testSpecificBook('东野')">东野</button>
+                <button onclick="testSpecificBook('10000001')">图书ID:10000001</button>
+            </div>
+            <div id="searchResult"></div>
+        </div>
+
+        <!-- API端点测试 -->
+        <div class="test-section">
+            <h3>🛠️ API端点直接测试</h3>
+            <button onclick="testAllBooksAPI()">获取所有图书</button>
+            <button onclick="testMatchBookAPI()">测试图书匹配</button>
+            <button onclick="testQueryBookAPI()">测试图书查询</button>
+            <div id="apiResult"></div>
+        </div>
+
+        <!-- 数据库数据展示 -->
+        <div class="test-section">
+            <h3>📖 数据库图书数据</h3>
+            <button onclick="showBookList()">显示所有图书</button>
+            <div id="bookList" class="book-list"></div>
+        </div>
+
+        <!-- 调试日志 -->
+        <div class="test-section">
+            <h3>📋 调试日志</h3>
+            <textarea id="debugLog" readonly placeholder="调试信息将显示在这里..."></textarea>
+            <br>
+            <button onclick="clearLog()">清空日志</button>
+            <button onclick="exportLog()">导出日志</button>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const debugLog = document.getElementById('debugLog');
+            const typeEmoji = {
+                'info': 'ℹ️',
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️'
+            };
+            debugLog.value += `[${timestamp}] ${typeEmoji[type] || 'ℹ️'} ${message}\n`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('debugLog').value = '';
+            log('日志已清空', 'info');
+        }
+
+        function exportLog() {
+            const logContent = document.getElementById('debugLog').value;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `图书搜索诊断日志_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            log('日志已导出', 'success');
+        }
+
+        function updateResult(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = 'test-result ' + (isSuccess ? 'success' : 'error');
+        }
+
+        function testDatabaseConnection() {
+            log('测试数据库连接...', 'info');
+            fetch('http://localhost:9000/allbooks.html')
+                .then(response => {
+                    log(`数据库连接测试响应状态: ${response.status}`, 'info');
+                    return response.text();
+                })
+                .then(html => {
+                    if (html.includes('error') || html.includes('数据库')) {
+                        updateResult('dbResult', '❌ 数据库连接可能有问题', false);
+                        log('数据库连接测试失败', 'error');
+                    } else {
+                        updateResult('dbResult', '✅ 数据库连接正常', true);
+                        log('数据库连接正常', 'success');
+                    }
+                })
+                .catch(error => {
+                    log(`数据库连接测试错误: ${error.message}`, 'error');
+                    updateResult('dbResult', `❌ 数据库连接失败: ${error.message}`, false);
+                });
+        }
+
+        function checkBookData() {
+            log('检查图书数据...', 'info');
+            fetch('http://localhost:9000/allbooks.html')
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const bookRows = doc.querySelectorAll('tbody tr');
+                    
+                    if (bookRows.length > 0) {
+                        updateResult('dbResult', `✅ 数据库中有 ${bookRows.length} 本图书`, true);
+                        log(`发现 ${bookRows.length} 本图书`, 'success');
+                        
+                        // 显示前几本书的信息
+                        let bookInfo = '前5本图书：\n';
+                        for (let i = 0; i < Math.min(5, bookRows.length); i++) {
+                            const cells = bookRows[i].querySelectorAll('td');
+                            if (cells.length > 0) {
+                                bookInfo += `${i+1}. ${cells[0].textContent.trim()}\n`;
+                            }
+                        }
+                        log(bookInfo, 'info');
+                    } else {
+                        updateResult('dbResult', '❌ 数据库中没有图书数据', false);
+                        log('数据库中没有图书数据', 'error');
+                    }
+                })
+                .catch(error => {
+                    log(`检查图书数据错误: ${error.message}`, 'error');
+                    updateResult('dbResult', `❌ 检查图书数据失败: ${error.message}`, false);
+                });
+        }
+
+        function testBookSearch() {
+            const keyword = document.getElementById('searchKeyword').value;
+            if (!keyword) {
+                updateResult('searchResult', '❌ 请输入搜索关键字', false);
+                return;
+            }
+            
+            log(`测试管理员图书搜索: ${keyword}`, 'info');
+            
+            const formData = new FormData();
+            formData.append('searchWord', keyword);
+            
+            fetch('http://localhost:9000/querybook.html', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                log(`管理员搜索响应状态: ${response.status}`, 'info');
+                return response.text();
+            })
+            .then(html => {
+                log('管理员搜索响应已收到', 'info');
+                
+                if (html.includes('没有匹配的图书')) {
+                    updateResult('searchResult', `❌ 搜索"${keyword}"：没有匹配的图书`, false);
+                    log(`搜索"${keyword}"：没有匹配的图书`, 'warning');
+                } else {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const bookRows = doc.querySelectorAll('tbody tr');
+                    
+                    if (bookRows.length > 0) {
+                        updateResult('searchResult', `✅ 搜索"${keyword}"：找到 ${bookRows.length} 本图书`, true);
+                        log(`搜索"${keyword}"：找到 ${bookRows.length} 本图书`, 'success');
+                        
+                        // 显示搜索结果
+                        let results = '搜索结果：\n';
+                        for (let i = 0; i < Math.min(3, bookRows.length); i++) {
+                            const cells = bookRows[i].querySelectorAll('td');
+                            if (cells.length > 0) {
+                                results += `${i+1}. ${cells[0].textContent.trim()}\n`;
+                            }
+                        }
+                        log(results, 'info');
+                    } else {
+                        updateResult('searchResult', `⚠️ 搜索"${keyword}"：响应格式异常`, false);
+                        log(`搜索"${keyword}"：响应格式异常`, 'warning');
+                    }
+                }
+            })
+            .catch(error => {
+                log(`管理员搜索错误: ${error.message}`, 'error');
+                updateResult('searchResult', `❌ 搜索失败: ${error.message}`, false);
+            });
+        }
+
+        function testReaderSearch() {
+            const keyword = document.getElementById('searchKeyword').value;
+            if (!keyword) {
+                updateResult('searchResult', '❌ 请输入搜索关键字', false);
+                return;
+            }
+            
+            log(`测试读者图书搜索: ${keyword}`, 'info');
+            
+            const formData = new FormData();
+            formData.append('searchWord', keyword);
+            
+            fetch('http://localhost:9000/reader_querybook_do.html', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                log(`读者搜索响应状态: ${response.status}`, 'info');
+                return response.text();
+            })
+            .then(html => {
+                log('读者搜索响应已收到', 'info');
+                
+                if (html.includes('没有匹配的图书')) {
+                    updateResult('searchResult', `❌ 读者搜索"${keyword}"：没有匹配的图书`, false);
+                    log(`读者搜索"${keyword}"：没有匹配的图书`, 'warning');
+                } else {
+                    updateResult('searchResult', `✅ 读者搜索"${keyword}"：搜索成功`, true);
+                    log(`读者搜索"${keyword}"：搜索成功`, 'success');
+                }
+            })
+            .catch(error => {
+                log(`读者搜索错误: ${error.message}`, 'error');
+                updateResult('searchResult', `❌ 读者搜索失败: ${error.message}`, false);
+            });
+        }
+
+        function testSpecificBook(keyword) {
+            document.getElementById('searchKeyword').value = keyword;
+            testBookSearch();
+        }
+
+        function testAllBooksAPI() {
+            log('测试获取所有图书API...', 'info');
+            fetch('http://localhost:9000/allbooks.html')
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const bookRows = doc.querySelectorAll('tbody tr');
+                    
+                    updateResult('apiResult', `✅ API测试成功，返回 ${bookRows.length} 本图书`, true);
+                    log(`API测试成功，返回 ${bookRows.length} 本图书`, 'success');
+                })
+                .catch(error => {
+                    log(`API测试错误: ${error.message}`, 'error');
+                    updateResult('apiResult', `❌ API测试失败: ${error.message}`, false);
+                });
+        }
+
+        function testMatchBookAPI() {
+            log('测试图书匹配API...', 'info');
+            updateResult('apiResult', 'ℹ️ 图书匹配API需要通过搜索测试来验证', false);
+        }
+
+        function testQueryBookAPI() {
+            log('测试图书查询API...', 'info');
+            updateResult('apiResult', 'ℹ️ 图书查询API需要通过搜索测试来验证', false);
+        }
+
+        function showBookList() {
+            log('获取图书列表...', 'info');
+            fetch('http://localhost:9000/allbooks.html')
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const bookRows = doc.querySelectorAll('tbody tr');
+                    
+                    let bookListHtml = '<h4>图书列表：</h4>';
+                    for (let i = 0; i < bookRows.length; i++) {
+                        const cells = bookRows[i].querySelectorAll('td');
+                        if (cells.length >= 4) {
+                            bookListHtml += `<div style="padding: 5px; border-bottom: 1px solid #eee;">
+                                <strong>${cells[0].textContent.trim()}</strong> - 
+                                ${cells[1].textContent.trim()} - 
+                                ${cells[2].textContent.trim()}
+                            </div>`;
+                        }
+                    }
+                    
+                    document.getElementById('bookList').innerHTML = bookListHtml;
+                    log(`显示了 ${bookRows.length} 本图书`, 'success');
+                })
+                .catch(error => {
+                    log(`获取图书列表错误: ${error.message}`, 'error');
+                    document.getElementById('bookList').innerHTML = `❌ 获取图书列表失败: ${error.message}`;
+                });
+        }
+
+        // 页面加载时自动执行基础检查
+        window.onload = function() {
+            log('图书搜索诊断工具加载完成', 'info');
+            setTimeout(() => {
+                testDatabaseConnection();
+                setTimeout(checkBookData, 1000);
+            }, 500);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书添加功能测试</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .test-section h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .success {
+            background-color: #27ae60;
+        }
+        .danger {
+            background-color: #e74c3c;
+        }
+        .warning {
+            background-color: #f39c12;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            display: none;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .quick-links {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 图书添加功能测试与诊断工具</h1>
+        
+        <div class="quick-links">
+            <button onclick="openLogin()">🔑 登录页面</button>
+            <button onclick="openAdminMain()">👨‍💼 管理员主页</button>
+            <button onclick="openBookAdd()">➕ 图书添加页面</button>
+            <button onclick="openAllBooks()">📖 所有图书</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 系统状态测试</h3>
+            <button onclick="testSystemStatus()">检查系统状态</button>
+            <button onclick="testDatabase()">测试数据库连接</button>
+            <button onclick="checkLogs()">查看日志</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 图书添加测试</h3>
+            <button onclick="testSimpleAdd()">简单图书添加测试</button>
+            <button onclick="testComplexAdd()" class="warning">复杂数据测试</button>
+            <button onclick="testInvalidData()" class="danger">无效数据测试</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🐛 HTTP 400 错误诊断</h3>
+            <button onclick="diagnose400Error()">诊断400错误</button>
+            <button onclick="testFormSubmission()">测试表单提交</button>
+            <button onclick="validateInputs()">验证输入格式</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 手动测试表单</h3>
+            <form id="testForm">
+                <div class="form-group">
+                    <label for="name">图书名称：</label>
+                    <input type="text" id="name" name="name" value="测试图书">
+                </div>
+                <div class="form-group">
+                    <label for="author">作者：</label>
+                    <input type="text" id="author" name="author" value="测试作者">
+                </div>
+                <div class="form-group">
+                    <label for="publish">出版社：</label>
+                    <input type="text" id="publish" name="publish" value="测试出版社">
+                </div>
+                <div class="form-group">
+                    <label for="isbn">ISBN：</label>
+                    <input type="text" id="isbn" name="isbn" value="978-7-111-12345-6">
+                </div>
+                <div class="form-group">
+                    <label for="introduction">简介：</label>
+                    <textarea id="introduction" name="introduction">这是一本测试图书的简介</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="language">语言：</label>
+                    <input type="text" id="language" name="language" value="中文">
+                </div>
+                <div class="form-group">
+                    <label for="price">价格：</label>
+                    <input type="number" id="price" name="price" value="29.99" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="pubdate">出版日期：</label>
+                    <input type="date" id="pubdate" name="pubdate" value="2024-01-01">
+                </div>
+                <div class="form-group">
+                    <label for="classId">分类号：</label>
+                    <input type="number" id="classId" name="classId" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="pressmark">书架号：</label>
+                    <input type="number" id="pressmark" name="pressmark" value="1001" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="state">状态：</label>
+                    <select id="state" name="state">
+                        <option value="1">在馆</option>
+                        <option value="0">借出</option>
+                    </select>
+                </div>
+                <button type="button" onclick="submitTestForm()">提交测试表单</button>
+                <button type="button" onclick="fillRandomData()" class="warning">填充随机数据</button>
+            </form>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function showResults(message) {
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.textContent = new Date().toLocaleTimeString() + ' - ' + message + '\n' + results.textContent;
+        }
+
+        function openLogin() {
+            window.open('http://localhost:9000/login.html', '_blank');
+        }
+
+        function openAdminMain() {
+            window.open('http://localhost:9000/admin_main.html', '_blank');
+        }
+
+        function openBookAdd() {
+            window.open('http://localhost:9000/book_add.html', '_blank');
+        }
+
+        function openAllBooks() {
+            window.open('http://localhost:9000/allbooks.html', '_blank');
+        }
+
+        function testSystemStatus() {
+            showResults('测试系统状态...');
+            fetch('http://localhost:9000/')
+                .then(response => {
+                    showResults(`系统状态: ${response.status} ${response.statusText}`);
+                    return response.text();
+                })
+                .then(data => {
+                    showResults('系统响应正常，首页可访问');
+                })
+                .catch(error => {
+                    showResults('系统状态检查失败: ' + error.message);
+                });
+        }
+
+        function testDatabase() {
+            showResults('测试数据库连接...');
+            fetch('http://localhost:9000/allbooks.html')
+                .then(response => {
+                    if (response.ok) {
+                        showResults('数据库连接正常 - 图书列表页面可访问');
+                    } else {
+                        showResults(`数据库连接可能有问题 - 状态码: ${response.status}`);
+                    }
+                })
+                .catch(error => {
+                    showResults('数据库连接测试失败: ' + error.message);
+                });
+        }
+
+        function checkLogs() {
+            showResults('查看日志功能需要在服务器端实现');
+        }
+
+        function testSimpleAdd() {
+            showResults('开始简单图书添加测试...');
+            const testData = new FormData();
+            testData.append('name', '测试图书_' + Date.now());
+            testData.append('author', '测试作者');
+            testData.append('publish', '测试出版社');
+            testData.append('isbn', '978-7-111-' + Math.floor(Math.random() * 100000));
+            testData.append('introduction', '这是一个自动化测试图书');
+            testData.append('language', '中文');
+            testData.append('price', '25.99');
+            testData.append('pubdate', '2024-01-01');
+            testData.append('classId', '1');
+            testData.append('pressmark', '1001');
+            testData.append('state', '1');
+
+            submitFormData(testData, '简单添加测试');
+        }
+
+        function testComplexAdd() {
+            showResults('开始复杂数据测试...');
+            const testData = new FormData();
+            testData.append('name', '复杂测试图书《特殊字符#@$%》');
+            testData.append('author', 'Test Author with Numbers 123');
+            testData.append('publish', '特殊出版社（测试）');
+            testData.append('isbn', '978-7-111-99999-9');
+            testData.append('introduction', '这是一个包含特殊字符的简介：!@#$%^&*()_+{}|:"<>?[]\\;\',./');
+            testData.append('language', '中英文混合 Mixed Language');
+            testData.append('price', '999.99');
+            testData.append('pubdate', '2023-12-31');
+            testData.append('classId', '999');
+            testData.append('pressmark', '9999');
+            testData.append('state', '0');
+
+            submitFormData(testData, '复杂数据测试');
+        }
+
+        function testInvalidData() {
+            showResults('开始无效数据测试...');
+            const testData = new FormData();
+            testData.append('name', ''); // 空名称
+            testData.append('author', '');
+            testData.append('publish', '');
+            testData.append('isbn', 'invalid-isbn');
+            testData.append('introduction', '');
+            testData.append('language', '');
+            testData.append('price', '-10'); // 负价格
+            testData.append('pubdate', 'invalid-date');
+            testData.append('classId', '0'); // 无效分类号
+            testData.append('pressmark', '-1'); // 负书架号
+            testData.append('state', '999'); // 无效状态
+
+            submitFormData(testData, '无效数据测试');
+        }
+
+        function submitFormData(formData, testName) {
+            fetch('http://localhost:9000/book_add_do.html', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                showResults(`${testName} - 响应状态: ${response.status} ${response.statusText}`);
+                if (response.status === 400) {
+                    showResults(`${testName} - 检测到HTTP 400错误！`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                if (data.includes('成功')) {
+                    showResults(`${testName} - 成功！`);
+                } else if (data.includes('失败') || data.includes('错误')) {
+                    showResults(`${testName} - 失败或有错误信息`);
+                } else {
+                    showResults(`${testName} - 响应内容长度: ${data.length} 字符`);
+                }
+            })
+            .catch(error => {
+                showResults(`${testName} - 请求失败: ${error.message}`);
+            });
+        }
+
+        function diagnose400Error() {
+            showResults('开始HTTP 400错误诊断...');
+            
+            // 测试1: 空表单提交
+            showResults('测试1: 空表单提交');
+            fetch('http://localhost:9000/book_add_do.html', {
+                method: 'POST',
+                body: new FormData()
+            }).then(response => {
+                showResults(`空表单测试 - 状态: ${response.status}`);
+            }).catch(e => showResults(`空表单测试失败: ${e.message}`));
+
+            // 测试2: 只包含必需字段
+            setTimeout(() => {
+                showResults('测试2: 只包含必需字段');
+                const minData = new FormData();
+                minData.append('name', '最小测试');
+                minData.append('author', '作者');
+                minData.append('price', '10.00');
+                
+                fetch('http://localhost:9000/book_add_do.html', {
+                    method: 'POST',
+                    body: minData
+                }).then(response => {
+                    showResults(`最小字段测试 - 状态: ${response.status}`);
+                }).catch(e => showResults(`最小字段测试失败: ${e.message}`));
+            }, 1000);
+
+            // 测试3: 检查Content-Type
+            setTimeout(() => {
+                showResults('测试3: 检查Content-Type设置');
+                const formData = new FormData();
+                formData.append('name', 'Content-Type测试');
+                
+                fetch('http://localhost:9000/book_add_do.html', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'name=URL编码测试&author=测试作者&price=15.00'
+                }).then(response => {
+                    showResults(`Content-Type测试 - 状态: ${response.status}`);
+                }).catch(e => showResults(`Content-Type测试失败: ${e.message}`));
+            }, 2000);
+        }
+
+        function testFormSubmission() {
+            showResults('测试表单提交机制...');
+            const form = document.getElementById('testForm');
+            const formData = new FormData(form);
+            
+            // 显示将要提交的数据
+            let dataStr = '准备提交的数据:\n';
+            for (let [key, value] of formData.entries()) {
+                dataStr += `${key}: ${value}\n`;
+            }
+            showResults(dataStr);
+            
+            submitFormData(formData, '表单提交测试');
+        }
+
+        function validateInputs() {
+            showResults('验证输入格式...');
+            const form = document.getElementById('testForm');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            let validationResults = '输入验证结果:\n';
+            inputs.forEach(input => {
+                const value = input.value;
+                const type = input.type;
+                const name = input.name;
+                
+                let valid = true;
+                let reason = '';
+                
+                if (type === 'number') {
+                    if (isNaN(parseFloat(value))) {
+                        valid = false;
+                        reason = '不是有效数字';
+                    }
+                } else if (type === 'date') {
+                    if (!value || isNaN(Date.parse(value))) {
+                        valid = false;
+                        reason = '不是有效日期';
+                    }
+                } else if (name === 'price') {
+                    if (parseFloat(value) <= 0) {
+                        valid = false;
+                        reason = '价格必须大于0';
+                    }
+                }
+                
+                validationResults += `${name}: ${valid ? '✓' : '✗'} ${reason}\n`;
+            });
+            
+            showResults(validationResults);
+        }
+
+        function submitTestForm() {
+            const form = document.getElementById('testForm');
+            const formData = new FormData(form);
+            submitFormData(formData, '手动表单提交');
+        }
+
+        function fillRandomData() {
+            const timestamp = Date.now();
+            document.getElementById('name').value = `随机图书_${timestamp}`;
+            document.getElementById('author').value = `随机作者_${Math.floor(Math.random() * 1000)}`;
+            document.getElementById('publish').value = `随机出版社_${Math.floor(Math.random() * 100)}`;
+            document.getElementById('isbn').value = `978-7-${Math.floor(Math.random() * 1000)}-${Math.floor(Math.random() * 100000)}-${Math.floor(Math.random() * 10)}`;
+            document.getElementById('price').value = (Math.random() * 100 + 10).toFixed(2);
+            document.getElementById('classId').value = Math.floor(Math.random() * 10) + 1;
+            document.getElementById('pressmark').value = Math.floor(Math.random() * 9000) + 1000;
+            
+            showResults('已填充随机数据');
+        }
+
+        // 页面加载时自动检查系统状态
+        window.onload = function() {
+            showResults('图书添加功能测试工具已加载');
+            setTimeout(testSystemStatus, 1000);
+        };
+    </script>
+</body>
+</html>

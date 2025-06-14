@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>简单测试页面</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>静态HTML测试成功！</h1>
+    <p>如果您能看到这个页面，说明静态资源配置正常。</p>
+    <p>时间戳: <span id="timestamp"></span></p>
+    
+    <script>
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+    </script>
+</body>
+</html>

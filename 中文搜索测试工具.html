@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中文搜索测试工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        .test-form {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        .test-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🔍 中文搜索测试工具</h1>
+        
+        <div class="info">
+            <strong>使用说明：</strong>
+            <br>1. 请先在主页面登录管理员账号 (admin/admin)
+            <br>2. 然后使用下面的测试按钮测试搜索功能
+            <br>3. 每个测试都会在新标签页打开结果
+        </div>
+        
+        <div class="test-form">
+            <h3>快速测试按钮</h3>
+            <div class="test-buttons">
+                <button class="btn" onclick="testSearch('大雪')">测试搜索"大雪"</button>
+                <button class="btn" onclick="testSearch('东野圭吾')">测试搜索"东野圭吾"</button>
+                <button class="btn" onclick="testSearch('东野')">测试搜索"东野"</button>
+                <button class="btn" onclick="testSearch('10000001')">测试搜索"10000001"</button>
+                <button class="btn btn-success" onclick="window.open('http://localhost:9000', '_blank')">打开主页面</button>
+            </div>
+        </div>
+        
+        <div class="test-form">
+            <h3>自定义搜索测试</h3>
+            <form id="searchForm" method="post" action="http://localhost:9000/querybook.html" target="_blank">
+                <div class="form-group">
+                    <label for="searchWord">搜索关键字：</label>
+                    <input type="text" id="searchWord" name="searchWord" placeholder="输入要搜索的关键字" value="大雪中的山庄">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">搜索图书</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="test-form">
+            <h3>测试数据信息</h3>
+            <p><strong>数据库中已知的东野圭吾作品：</strong></p>
+            <ul>
+                <li>ID: 10000001 - "大雪中的山庄" (作者: 东野圭吾)</li>
+                <li>ID: 50000007 - "造彩虹的人" (作者: 东野圭吾)</li>
+            </ul>
+            <p><strong>预期结果：</strong></p>
+            <ul>
+                <li>搜索"大雪" → 应该找到 "大雪中的山庄"</li>
+                <li>搜索"东野" → 应该找到 2本东野圭吾的书</li>
+                <li>搜索"10000001" → 应该找到 "大雪中的山庄"</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function testSearch(keyword) {
+            // 创建一个临时表单来提交搜索请求
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'http://localhost:9000/querybook.html';
+            form.target = '_blank';
+            
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'searchWord';
+            input.value = keyword;
+            
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            
+            console.log('测试搜索关键字: ' + keyword);
+        }
+        
+        // 页面加载完成后的提示
+        window.onload = function() {
+            console.log('中文搜索测试工具加载完成');
+            console.log('请确保已经登录管理员账号');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP 405错误修复验证测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .test-button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background-color: #2980b9;
+        }
+        .success {
+            background-color: #27ae60;
+        }
+        .error {
+            background-color: #e74c3c;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success-result {
+            background-color: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        .error-result {
+            background-color: #fdf2f2;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        .info {
+            background-color: #e8f4fd;
+            color: #2980b9;
+            border: 1px solid #2980b9;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        .form-group label {
+            display: inline-block;
+            width: 100px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 200px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .status-success {
+            background-color: #27ae60;
+        }
+        .status-error {
+            background-color: #e74c3c;
+        }
+        .status-pending {
+            background-color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HTTP 405错误修复验证测试</h1>
+        
+        <div class="test-section">
+            <h2>修复概述</h2>
+            <p><strong>问题：</strong>POST请求返回HTTP 405 Method Not Allowed错误</p>
+            <p><strong>原因：</strong>控制器方法的@RequestMapping注解没有明确指定HTTP方法</p>
+            <p><strong>解决方案：</strong>为所有处理POST请求的方法添加 <code>method = RequestMethod.POST</code></p>
+        </div>
+
+        <div class="test-section">
+            <h2>已修复的POST端点</h2>
+            <div id="endpoints-status">
+                <div class="endpoint-item">
+                    <span class="status-indicator status-pending" id="status-reader-add"></span>
+                    <strong>reader_add_do.html</strong> - 读者添加功能
+                    <button class="test-button" onclick="testReaderAdd()">测试</button>
+                    <div id="result-reader-add" class="result" style="display:none;"></div>
+                </div>
+                
+                <div class="endpoint-item">
+                    <span class="status-indicator status-pending" id="status-book-add"></span>
+                    <strong>book_add_do.html</strong> - 图书添加功能
+                    <button class="test-button" onclick="testBookAdd()">测试</button>
+                    <div id="result-book-add" class="result" style="display:none;"></div>
+                </div>
+                
+                <div class="endpoint-item">
+                    <span class="status-indicator status-pending" id="status-book-edit"></span>
+                    <strong>book_edit_do.html</strong> - 图书编辑功能
+                    <button class="test-button" onclick="testBookEdit()">测试</button>
+                    <div id="result-book-edit" class="result" style="display:none;"></div>
+                </div>
+                
+                <div class="endpoint-item">
+                    <span class="status-indicator status-pending" id="status-reader-edit"></span>
+                    <strong>reader_edit_do.html</strong> - 读者编辑功能
+                    <button class="test-button" onclick="testReaderEdit()">测试</button>
+                    <div id="result-reader-edit" class="result" style="display:none;"></div>
+                </div>
+                
+                <div class="endpoint-item">
+                    <span class="status-indicator status-pending" id="status-lend-book"></span>
+                    <strong>lendbookdo.html</strong> - 借书功能
+                    <button class="test-button" onclick="testLendBook()">测试</button>
+                    <div id="result-lend-book" class="result" style="display:none;"></div>
+                </div>
+                
+                <div class="endpoint-item">
+                    <span class="status-indicator status-pending" id="status-query-book"></span>
+                    <strong>querybook.html</strong> - 图书搜索功能
+                    <button class="test-button" onclick="testQueryBook()">测试</button>
+                    <div id="result-query-book" class="result" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>批量测试</h2>
+            <button class="test-button" onclick="runAllTests()">运行所有测试</button>
+            <button class="test-button success" onclick="testLogin()">先登录</button>
+            <div id="overall-result" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>实际功能测试</h2>
+            <p>点击下面的按钮访问实际功能页面：</p>
+            <button class="test-button" onclick="window.open('/login.html', '_blank')">登录页面</button>
+            <button class="test-button" onclick="window.open('/reader_add.html', '_blank')">添加读者</button>
+            <button class="test-button" onclick="window.open('/book_add.html', '_blank')">添加图书</button>
+            <button class="test-button" onclick="window.open('/allbooks.html', '_blank')">图书列表</button>
+            <button class="test-button" onclick="window.open('/allreaders.html', '_blank')">读者列表</button>
+        </div>
+    </div>
+
+    <script>
+        let sessionData = null;
+
+        function updateStatus(endpointId, success, message) {
+            const statusElement = document.getElementById(`status-${endpointId}`);
+            const resultElement = document.getElementById(`result-${endpointId}`);
+            
+            if (success) {
+                statusElement.className = 'status-indicator status-success';
+                resultElement.className = 'result success-result';
+                resultElement.textContent = '✅ ' + message;
+            } else {
+                statusElement.className = 'status-indicator status-error';
+                resultElement.className = 'result error-result';
+                resultElement.textContent = '❌ ' + message;
+            }
+            resultElement.style.display = 'block';
+        }
+
+        function testLogin() {
+            const loginData = new FormData();
+            loginData.append('id', '123');
+            loginData.append('passwd', '123');
+
+            fetch('/loginCheck', {
+                method: 'POST',
+                body: loginData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.stateCode === "1" || data.stateCode === "2") {
+                    sessionData = data;
+                    alert('登录成功！可以开始测试其他功能。');
+                } else {
+                    alert('登录失败：' + data.msg);
+                }
+            })
+            .catch(error => {
+                console.error('登录测试失败:', error);
+                alert('登录请求失败');
+            });
+        }
+
+        function testReaderAdd() {
+            const formData = new FormData();
+            formData.append('readerId', '999');
+            formData.append('name', '测试读者');
+            formData.append('sex', '男');
+            formData.append('birth', '1990-01-01');
+            formData.append('address', '测试地址');
+            formData.append('telcode', '13800138000');
+
+            fetch('/reader_add_do.html', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.status === 405) {
+                    updateStatus('reader-add', false, 'HTTP 405错误 - 修复失败');
+                } else if (response.status === 302 || response.ok) {
+                    updateStatus('reader-add', true, '请求成功，没有405错误');
+                } else {
+                    updateStatus('reader-add', false, `HTTP ${response.status}错误`);
+                }
+            })
+            .catch(error => {
+                updateStatus('reader-add', false, '请求失败: ' + error.message);
+            });
+        }
+
+        function testBookAdd() {
+            const formData = new FormData();
+            formData.append('name', '测试图书');
+            formData.append('author', '测试作者');
+            formData.append('publish', '测试出版社');
+            formData.append('isbn', '1234567890123');
+            formData.append('introduction', '测试简介');
+            formData.append('language', '中文');
+            formData.append('price', '29.99');
+            formData.append('pubdate', '2023-01-01');
+            formData.append('classId', '1');
+            formData.append('pressmark', '1');
+            formData.append('state', '1');
+
+            fetch('/book_add_do.html', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.status === 405) {
+                    updateStatus('book-add', false, 'HTTP 405错误 - 修复失败');
+                } else if (response.status === 302 || response.ok) {
+                    updateStatus('book-add', true, '请求成功，没有405错误');
+                } else {
+                    updateStatus('book-add', false, `HTTP ${response.status}错误`);
+                }
+            })
+            .catch(error => {
+                updateStatus('book-add', false, '请求失败: ' + error.message);
+            });
+        }
+
+        function testBookEdit() {
+            const formData = new FormData();
+            formData.append('name', '编辑测试图书');
+            formData.append('author', '编辑测试作者');
+            formData.append('publish', '编辑测试出版社');
+            formData.append('isbn', '1234567890124');
+            formData.append('introduction', '编辑测试简介');
+            formData.append('language', '中文');
+            formData.append('price', '39.99');
+            formData.append('pubdate', '2023-01-01');
+            formData.append('classId', '1');
+            formData.append('pressmark', '1');
+            formData.append('state', '1');
+
+            fetch('/book_edit_do.html?id=1', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.status === 405) {
+                    updateStatus('book-edit', false, 'HTTP 405错误 - 修复失败');
+                } else if (response.status === 302 || response.ok) {
+                    updateStatus('book-edit', true, '请求成功，没有405错误');
+                } else {
+                    updateStatus('book-edit', false, `HTTP ${response.status}错误`);
+                }
+            })
+            .catch(error => {
+                updateStatus('book-edit', false, '请求失败: ' + error.message);
+            });
+        }
+
+        function testReaderEdit() {
+            const formData = new FormData();
+            formData.append('name', '编辑测试读者');
+            formData.append('sex', '女');
+            formData.append('birth', '1992-01-01');
+            formData.append('address', '编辑测试地址');
+            formData.append('telcode', '13900139000');
+
+            fetch('/reader_edit_do.html?id=1', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.status === 405) {
+                    updateStatus('reader-edit', false, 'HTTP 405错误 - 修复失败');
+                } else if (response.status === 302 || response.ok) {
+                    updateStatus('reader-edit', true, '请求成功，没有405错误');
+                } else {
+                    updateStatus('reader-edit', false, `HTTP ${response.status}错误`);
+                }
+            })
+            .catch(error => {
+                updateStatus('reader-edit', false, '请求失败: ' + error.message);
+            });
+        }
+
+        function testLendBook() {
+            const formData = new FormData();
+            formData.append('readerId', '1');
+
+            fetch('/lendbookdo.html?id=1', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.status === 405) {
+                    updateStatus('lend-book', false, 'HTTP 405错误 - 修复失败');
+                } else if (response.status === 302 || response.ok) {
+                    updateStatus('lend-book', true, '请求成功，没有405错误');
+                } else {
+                    updateStatus('lend-book', false, `HTTP ${response.status}错误`);
+                }
+            })
+            .catch(error => {
+                updateStatus('lend-book', false, '请求失败: ' + error.message);
+            });
+        }
+
+        function testQueryBook() {
+            const formData = new FormData();
+            formData.append('searchWord', '测试');
+
+            fetch('/querybook.html', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.status === 405) {
+                    updateStatus('query-book', false, 'HTTP 405错误 - 修复失败');
+                } else if (response.status === 302 || response.ok) {
+                    updateStatus('query-book', true, '请求成功，没有405错误');
+                } else {
+                    updateStatus('query-book', false, `HTTP ${response.status}错误`);
+                }
+            })
+            .catch(error => {
+                updateStatus('query-book', false, '请求失败: ' + error.message);
+            });
+        }
+
+        function runAllTests() {
+            document.getElementById('overall-result').style.display = 'block';
+            document.getElementById('overall-result').className = 'result info';
+            document.getElementById('overall-result').textContent = '🔄 正在运行所有测试...';
+            
+            const tests = [
+                testReaderAdd,
+                testBookAdd,
+                testBookEdit,
+                testReaderEdit,
+                testLendBook,
+                testQueryBook
+            ];
+
+            let delay = 0;
+            tests.forEach(test => {
+                setTimeout(test, delay);
+                delay += 1000; // 每个测试间隔1秒
+            });
+
+            setTimeout(() => {
+                document.getElementById('overall-result').className = 'result success-result';
+                document.getElementById('overall-result').textContent = '✅ 所有测试完成！检查上面的结果。';
+            }, delay);
+        }
+
+        // 页面加载时显示提示
+        window.onload = function() {
+            console.log('HTTP 405错误修复验证测试页面已加载');
+            console.log('建议先点击"先登录"按钮登录系统，然后再测试其他功能');
+        };
+    </script>
+</body>
+</html>

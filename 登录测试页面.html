@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { border: 1px solid #ccc; padding: 15px; margin: 10px 0; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { padding: 10px 20px; margin: 5px; }
+        input { padding: 5px; margin: 5px; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>图书管理系统登录测试</h1>
+    
+    <div class="test-section">
+        <h2>1. 系统状态检查</h2>
+        <button onclick="checkSystemStatus()">检查系统状态</button>
+        <div id="system-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 数据库连接测试</h2>
+        <button onclick="testDatabaseConnection()">测试数据库连接</button>
+        <div id="db-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 登录功能测试</h2>
+        <div>
+            <label>用户名: </label>
+            <input type="text" id="username" value="20170001" />
+            <label>密码: </label>
+            <input type="password" id="password" value="111111" />
+            <button onclick="testLogin()">测试登录</button>
+        </div>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. API端点测试</h2>
+        <button onclick="testApiEndpoints()">测试所有API</button>
+        <div id="api-results"></div>
+    </div>
+
+    <script>
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        }
+
+        function checkSystemStatus() {
+            const statusDiv = document.getElementById('system-status');
+            statusDiv.innerHTML = '<div class="info">检查中...</div>';
+            
+            fetch('/simple-login-test')
+                .then(response => response.text())
+                .then(data => {
+                    log('system-status', '✓ 系统正常运行，Jetty服务器可访问', 'success');
+                    log('system-status', `响应: ${data}`, 'info');
+                })
+                .catch(error => {
+                    log('system-status', '✗ 系统连接失败: ' + error.message, 'error');
+                });
+        }
+
+        function testDatabaseConnection() {
+            const dbDiv = document.getElementById('db-status');
+            dbDiv.innerHTML = '<div class="info">测试中...</div>';
+            
+            fetch('/api/test-db')
+                .then(response => response.text())
+                .then(data => {
+                    if (data.includes('成功') || data.includes('SUCCESS')) {
+                        log('db-status', '✓ 数据库连接成功', 'success');
+                    } else {
+                        log('db-status', '✗ 数据库连接可能有问题', 'error');
+                    }
+                    log('db-status', `响应: ${data}`, 'info');
+                })
+                .catch(error => {
+                    log('db-status', '✗ 数据库测试失败: ' + error.message, 'error');
+                });
+        }
+
+        function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = '<div class="info">登录中...</div>';
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const formData = new FormData();
+            formData.append('admin_id', username);
+            formData.append('password', password);
+            
+            fetch('/loginCheck', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                log('login-result', `登录响应: ${data}`, 'info');
+                
+                if (data.includes('success') || data.includes('成功')) {
+                    log('login-result', '✓ 登录成功！', 'success');
+                } else if (data.includes('error') || data.includes('失败')) {
+                    log('login-result', '✗ 登录失败，可能是用户名密码错误或数据库问题', 'error');
+                } else {
+                    log('login-result', '? 登录响应未知，请检查响应内容', 'error');
+                }
+            })
+            .catch(error => {
+                log('login-result', '✗ 登录请求失败: ' + error.message, 'error');
+            });
+        }
+
+        function testApiEndpoints() {
+            const apiDiv = document.getElementById('api-results');
+            apiDiv.innerHTML = '<div class="info">测试API端点...</div>';
+            
+            const endpoints = [
+                '/simple-login-test',
+                '/api/test',
+                '/api/test-db',
+                '/loginCheck'
+            ];
+            
+            endpoints.forEach(endpoint => {
+                fetch(endpoint)
+                    .then(response => {
+                        if (response.ok) {
+                            log('api-results', `✓ ${endpoint} - 可访问`, 'success');
+                        } else {
+                            log('api-results', `✗ ${endpoint} - HTTP ${response.status}`, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        log('api-results', `✗ ${endpoint} - ${error.message}`, 'error');
+                    });
+            });
+        }
+
+        // 页面加载时自动检查系统状态
+        window.onload = function() {
+            checkSystemStatus();
+        };
+    </script>
+</body>
+</html>

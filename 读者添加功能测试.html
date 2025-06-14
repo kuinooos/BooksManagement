@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>读者添加功能测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .test-title {
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="date"], select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .btn-success {
+            background-color: #27ae60;
+        }
+        .btn-success:hover {
+            background-color: #229954;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-success { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        .status-pending { background-color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧑‍🎓 读者添加功能测试</h1>
+        
+        <div class="test-section">
+            <div class="test-title">
+                <span class="status-indicator status-pending"></span>
+                测试1: 添加正常读者信息
+            </div>
+            <form id="testForm1">
+                <div class="form-group">
+                    <label for="readerId1">读者证号:</label>
+                    <input type="text" id="readerId1" name="readerId" value="50000021" required>
+                </div>
+                <div class="form-group">
+                    <label for="name1">姓名:</label>
+                    <input type="text" id="name1" name="name" value="测试读者" required>
+                </div>
+                <div class="form-group">
+                    <label for="sex1">性别:</label>
+                    <select id="sex1" name="sex" required>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="birth1">出生日期:</label>
+                    <input type="date" id="birth1" name="birth" value="1995-06-15" required>
+                </div>
+                <div class="form-group">
+                    <label for="address1">地址:</label>
+                    <input type="text" id="address1" name="address" value="北京市海淀区中关村软件园1号楼测试地址" required>
+                </div>
+                <div class="form-group">
+                    <label for="telcode1">电话:</label>
+                    <input type="text" id="telcode1" name="telcode" value="13812345678" required>
+                </div>
+                <button type="button" class="btn" onclick="testAddReader(1)">测试添加</button>
+                <button type="button" class="btn-success btn" onclick="openAdminAddPage()">打开管理员添加页面</button>
+            </form>
+            <div id="result1" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                <span class="status-indicator status-pending"></span>
+                测试2: 添加长地址读者信息
+            </div>
+            <form id="testForm2">
+                <div class="form-group">
+                    <label for="readerId2">读者证号:</label>
+                    <input type="text" id="readerId2" name="readerId" value="50000022" required>
+                </div>
+                <div class="form-group">
+                    <label for="name2">姓名:</label>
+                    <input type="text" id="name2" name="name" value="长地址测试用户" required>
+                </div>
+                <div class="form-group">
+                    <label for="sex2">性别:</label>
+                    <select id="sex2" name="sex" required>
+                        <option value="女">女</option>
+                        <option value="男">男</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="birth2">出生日期:</label>
+                    <input type="date" id="birth2" name="birth" value="1992-08-20" required>
+                </div>
+                <div class="form-group">
+                    <label for="address2">地址:</label>
+                    <input type="text" id="address2" name="address" value="广东省深圳市南山区科技园高新南一道飞亚达科技大厦28楼2801室长地址测试专用超长地址信息测试数据库字段扩展是否生效" required>
+                </div>
+                <div class="form-group">
+                    <label for="telcode2">电话:</label>
+                    <input type="text" id="telcode2" name="telcode" value="13987654321" required>
+                </div>
+                <button type="button" class="btn" onclick="testAddReader(2)">测试添加长地址</button>
+            </form>
+            <div id="result2" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                <span class="status-indicator status-pending"></span>
+                测试3: 查看所有读者列表
+            </div>
+            <button type="button" class="btn" onclick="checkAllReaders()">查看所有读者</button>
+            <button type="button" class="btn-success btn" onclick="openAllReadersPage()">打开读者管理页面</button>
+            <div id="result3" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                <span class="status-indicator status-info"></span>
+                数据库字段扩展状态
+            </div>
+            <div class="info result">
+                <strong>✅ 已完成的数据库修改:</strong><br>
+                • reader_info.address: varchar(50) → varchar(200)<br>
+                • reader_info.name: varchar(50) → varchar(50)<br>
+                • reader_info.telcode: varchar(20) → varchar(20)<br>
+                • reader_card.name: varchar(50) → varchar(50)<br>
+                • reader_card.passwd: varchar(100) → varchar(100)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function testAddReader(testNum) {
+            const form = document.getElementById('testForm' + testNum);
+            const formData = new FormData(form);
+            const resultDiv = document.getElementById('result' + testNum);
+            
+            // 显示正在测试
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = '正在测试读者添加...';
+            
+            // 构建URL参数
+            const params = new URLSearchParams();
+            for (let [key, value] of formData.entries()) {
+                params.append(key, value);
+            }
+            
+            // 发送请求到读者添加接口
+            fetch('http://localhost:8080/reader_add_do.html?' + params.toString(), {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                }
+            })
+            .then(data => {
+                if (data.includes('添加读者信息成功') || data.includes('succ')) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ 读者添加成功！ID: ' + formData.get('readerId');
+                    updateStatusIndicator(testNum, 'success');
+                } else if (data.includes('失败') || data.includes('error')) {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ 读者添加失败！请检查参数或数据库连接。';
+                    updateStatusIndicator(testNum, 'error');
+                } else {
+                    resultDiv.className = 'result info';
+                    resultDiv.innerHTML = '⚠️ 响应异常，请检查服务器状态。';
+                    updateStatusIndicator(testNum, 'error');
+                }
+            })
+            .catch(error => {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ 请求失败: ' + error.message + '<br>请确保服务器已启动且可访问。';
+                updateStatusIndicator(testNum, 'error');
+            });
+        }
+
+        function checkAllReaders() {
+            const resultDiv = document.getElementById('result3');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = '正在获取读者列表...';
+            
+            fetch('http://localhost:8080/allreaders.html', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ 读者列表获取成功！页面已响应。';
+                    updateStatusIndicator(3, 'success');
+                } else {
+                    throw new Error('HTTP ' + response.status);
+                }
+            })
+            .catch(error => {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ 获取读者列表失败: ' + error.message;
+                updateStatusIndicator(3, 'error');
+            });
+        }
+
+        function updateStatusIndicator(testNum, status) {
+            const indicators = document.querySelectorAll('.test-section:nth-child(' + (testNum + 1) + ') .status-indicator');
+            indicators.forEach(indicator => {
+                indicator.className = 'status-indicator status-' + status;
+            });
+        }
+
+        function openAdminAddPage() {
+            window.open('http://localhost:8080/reader_add.html', '_blank');
+        }
+
+        function openAllReadersPage() {
+            window.open('http://localhost:8080/allreaders.html', '_blank');
+        }
+
+        // 页面加载时检查服务器状态
+        window.onload = function() {
+            fetch('http://localhost:8080/', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ 服务器连接正常');
+                } else {
+                    console.log('⚠️ 服务器响应异常');
+                }
+            })
+            .catch(error => {
+                console.log('❌ 服务器连接失败:', error.message);
+            });
+        };
+    </script>
+</body>
+</html>

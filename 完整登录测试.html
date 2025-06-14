@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>图书管理系统 - 完整登录测试</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .account-section { 
+            margin: 20px 0; 
+            padding: 20px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .admin-section { border-color: #ff6b6b; background: #fff5f5; }
+        .reader-section { border-color: #4ecdc4; background: #f0fdfc; }
+        
+        button { 
+            padding: 12px 24px; 
+            margin: 8px; 
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .admin-btn { background: #ff6b6b; color: white; }
+        .admin-btn:hover { background: #ff5252; transform: translateY(-2px); }
+        
+        .reader-btn { background: #4ecdc4; color: white; }
+        .reader-btn:hover { background: #26d0ce; transform: translateY(-2px); }
+        
+        .test-btn { background: #6c5ce7; color: white; }
+        .test-btn:hover { background: #5f3dc4; transform: translateY(-2px); }
+        
+        .success { color: #00b894; font-weight: bold; }
+        .error { color: #e17055; font-weight: bold; }
+        .info { color: #0984e3; font-weight: bold; }
+        
+        textarea { 
+            width: 100%; 
+            height: 200px; 
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: monospace;
+        }
+        
+        .account-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .account-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4ecdc4;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .quick-login {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+        
+        .quick-login input {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 100px;
+        }
+        
+        h1 { color: #2d3436; text-align: center; }
+        h2 { color: #636e72; }
+        h3 { color: #74b9ff; }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online { background: #00b894; }
+        .status-offline { background: #e17055; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 图书管理系统 - 完整登录测试</h1>
+        
+        <!-- 系统状态检查 -->
+        <div class="account-section">
+            <h3>🔧 系统状态检查</h3>
+            <button class="test-btn" onclick="checkSystemStatus()">检查系统状态</button>
+            <button class="test-btn" onclick="testDatabaseConnection()">测试数据库连接</button>
+            <div id="systemStatus"></div>
+        </div>
+
+        <!-- 管理员账号 -->
+        <div class="account-section admin-section">
+            <h2>👨‍💼 管理员登录</h2>
+            <p><strong>管理员账号信息：</strong></p>
+            <div class="quick-login">
+                <span class="status-indicator status-online"></span>
+                <strong>账号ID:</strong> <input type="text" id="adminId" value="20170001" readonly>
+                <strong>密码:</strong> <input type="password" id="adminPass" value="111111" readonly>
+                <button class="admin-btn" onclick="testAdminLogin()">管理员登录测试</button>
+            </div>
+            <div id="adminResult"></div>
+        </div>
+
+        <!-- 读者账号 -->
+        <div class="account-section reader-section">
+            <h2>👥 读者登录</h2>
+            <p><strong>可用读者账号（密码统一为：111111）：</strong></p>
+            
+            <div class="account-grid">
+                <div class="account-item">
+                    <h4>👨 张华</h4>
+                    <div class="quick-login">
+                        <span class="status-indicator status-online"></span>
+                        <strong>ID:</strong> <input type="text" value="1501014101" readonly>
+                        <button class="reader-btn" onclick="testReaderLogin('1501014101', '111111', '张华')">登录测试</button>
+                    </div>
+                </div>
+                
+                <div class="account-item">
+                    <h4>👨 王小伟</h4>
+                    <div class="quick-login">
+                        <span class="status-indicator status-online"></span>
+                        <strong>ID:</strong> <input type="text" value="1501014102" readonly>
+                        <button class="reader-btn" onclick="testReaderLogin('1501014102', '111111', '王小伟')">登录测试</button>
+                    </div>
+                </div>
+                
+                <div class="account-item">
+                    <h4>👩 王莞尔</h4>
+                    <div class="quick-login">
+                        <span class="status-indicator status-online"></span>
+                        <strong>ID:</strong> <input type="text" value="1501014103" readonly>
+                        <button class="reader-btn" onclick="testReaderLogin('1501014103', '111111', '王莞尔')">登录测试</button>
+                    </div>
+                </div>
+                
+                <div class="account-item">
+                    <h4>👨 张明华</h4>
+                    <div class="quick-login">
+                        <span class="status-indicator status-online"></span>
+                        <strong>ID:</strong> <input type="text" value="1501014104" readonly>
+                        <button class="reader-btn" onclick="testReaderLogin('1501014104', '111111', '张明华')">登录测试</button>
+                    </div>
+                </div>
+                
+                <div class="account-item">
+                    <h4>👨 李一琛</h4>
+                    <div class="quick-login">
+                        <span class="status-indicator status-online"></span>
+                        <strong>ID:</strong> <input type="text" value="1501014105" readonly>
+                        <button class="reader-btn" onclick="testReaderLogin('1501014105', '111111', '李一琛')">登录测试</button>
+                    </div>
+                </div>
+                
+                <div class="account-item">
+                    <h4>👨 李二飞</h4>
+                    <div class="quick-login">
+                        <span class="status-indicator status-online"></span>
+                        <strong>ID:</strong> <input type="text" value="1501014106" readonly>
+                        <button class="reader-btn" onclick="testReaderLogin('1501014106', '111111', '李二飞')">登录测试</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="readerResult"></div>
+        </div>
+
+        <!-- 自定义登录测试 -->
+        <div class="account-section">
+            <h3>🔧 自定义登录测试</h3>
+            <div class="quick-login">
+                <strong>账号ID:</strong> <input type="text" id="customId" placeholder="输入账号ID">
+                <strong>密码:</strong> <input type="password" id="customPass" placeholder="输入密码">
+                <button class="test-btn" onclick="testCustomLogin()">自定义登录测试</button>
+            </div>
+            <div id="customResult"></div>
+        </div>
+
+        <!-- 调试日志 -->
+        <div class="account-section">
+            <h3>📋 调试日志</h3>
+            <textarea id="debugLog" readonly placeholder="日志将显示在这里..."></textarea>
+            <br>
+            <button class="test-btn" onclick="clearLog()">清空日志</button>
+            <button class="test-btn" onclick="exportLog()">导出日志</button>
+        </div>
+
+        <!-- 快速链接 -->
+        <div class="account-section">
+            <h3>🔗 快速链接</h3>
+            <button class="test-btn" onclick="openMainPage()">打开主登录页面</button>
+            <button class="admin-btn" onclick="openAdminPage()">管理员后台</button>
+            <button class="reader-btn" onclick="openReaderPage()">读者页面</button>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const debugLog = document.getElementById('debugLog');
+            const typeEmoji = {
+                'info': 'ℹ️',
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️'
+            };
+            debugLog.value += `[${timestamp}] ${typeEmoji[type] || 'ℹ️'} ${message}\n`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('debugLog').value = '';
+            log('日志已清空', 'info');
+        }
+
+        function exportLog() {
+            const logContent = document.getElementById('debugLog').value;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `图书管理系统登录测试日志_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            log('日志已导出', 'success');
+        }
+
+        function updateResult(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = isSuccess ? 'success' : 'error';
+        }
+
+        function checkSystemStatus() {
+            log('开始检查系统状态...', 'info');
+            fetch('http://localhost:9000/')
+                .then(response => {
+                    log(`服务器响应状态: ${response.status}`, response.ok ? 'success' : 'error');
+                    if (response.ok) {
+                        updateResult('systemStatus', '✅ 系统运行正常 (端口9000)', true);
+                        return response.text();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                })
+                .then(html => {
+                    log('系统主页面加载成功', 'success');
+                })
+                .catch(error => {
+                    log(`系统连接失败: ${error.message}`, 'error');
+                    updateResult('systemStatus', `❌ 系统连接失败: ${error.message}`, false);
+                });
+        }
+
+        function testDatabaseConnection() {
+            log('测试数据库连接...', 'info');
+            fetch('http://localhost:9000/loginCheck', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'id=test&passwd=test'
+            })
+            .then(response => {
+                log(`数据库测试响应状态: ${response.status}`, 'info');
+                return response.text();
+            })
+            .then(result => {
+                log(`数据库测试响应: ${result}`, 'info');
+                if (result.includes('账号或密码错误')) {
+                    updateResult('systemStatus', '✅ 数据库连接正常（返回预期错误）', true);
+                    log('数据库连接正常', 'success');
+                } else {
+                    updateResult('systemStatus', '⚠️ 数据库响应异常', false);
+                    log('数据库响应异常', 'warning');
+                }
+            })
+            .catch(error => {
+                log(`数据库测试失败: ${error.message}`, 'error');
+                updateResult('systemStatus', `❌ 数据库连接失败: ${error.message}`, false);
+            });
+        }
+
+        function testAdminLogin() {
+            const adminId = document.getElementById('adminId').value;
+            const adminPass = document.getElementById('adminPass').value;
+            
+            log(`测试管理员登录: ${adminId}`, 'info');
+            
+            fetch('http://localhost:9000/loginCheck', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${encodeURIComponent(adminId)}&passwd=${encodeURIComponent(adminPass)}`
+            })
+            .then(response => {
+                log(`管理员登录响应状态: ${response.status}`, 'info');
+                return response.json();
+            })
+            .then(result => {
+                log(`管理员登录响应: ${JSON.stringify(result)}`, 'info');
+                
+                if (result.stateCode === "1") {
+                    updateResult('adminResult', '✅ 管理员登录成功！可以访问管理员后台', true);
+                    log('管理员登录成功', 'success');
+                } else if (result.stateCode === "0") {
+                    updateResult('adminResult', '❌ 管理员登录失败 - 账号或密码错误', false);
+                    log('管理员登录失败', 'error');
+                } else {
+                    updateResult('adminResult', `⚠️ 未知响应: ${result.msg || '无消息'}`, false);
+                    log(`未知响应: ${JSON.stringify(result)}`, 'warning');
+                }
+            })
+            .catch(error => {
+                log(`管理员登录请求失败: ${error.message}`, 'error');
+                updateResult('adminResult', `❌ 登录请求失败: ${error.message}`, false);
+            });
+        }
+
+        function testReaderLogin(readerId, password, readerName) {
+            log(`测试读者登录: ${readerName} (${readerId})`, 'info');
+            
+            fetch('http://localhost:9000/loginCheck', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${encodeURIComponent(readerId)}&passwd=${encodeURIComponent(password)}`
+            })
+            .then(response => {
+                log(`读者登录响应状态: ${response.status}`, 'info');
+                return response.json();
+            })
+            .then(result => {
+                log(`读者登录响应: ${JSON.stringify(result)}`, 'info');
+                
+                if (result.stateCode === "2") {
+                    updateResult('readerResult', `✅ 读者 ${readerName} 登录成功！可以访问读者页面`, true);
+                    log(`读者 ${readerName} 登录成功`, 'success');
+                } else if (result.stateCode === "0") {
+                    updateResult('readerResult', `❌ 读者 ${readerName} 登录失败 - 账号或密码错误`, false);
+                    log(`读者 ${readerName} 登录失败`, 'error');
+                } else {
+                    updateResult('readerResult', `⚠️ 未知响应: ${result.msg || '无消息'}`, false);
+                    log(`未知响应: ${JSON.stringify(result)}`, 'warning');
+                }
+            })
+            .catch(error => {
+                log(`读者登录请求失败: ${error.message}`, 'error');
+                updateResult('readerResult', `❌ 登录请求失败: ${error.message}`, false);
+            });
+        }
+
+        function testCustomLogin() {
+            const customId = document.getElementById('customId').value;
+            const customPass = document.getElementById('customPass').value;
+            
+            if (!customId || !customPass) {
+                updateResult('customResult', '❌ 请输入账号ID和密码', false);
+                return;
+            }
+            
+            log(`测试自定义登录: ${customId}`, 'info');
+            
+            fetch('http://localhost:9000/loginCheck', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${encodeURIComponent(customId)}&passwd=${encodeURIComponent(customPass)}`
+            })
+            .then(response => {
+                log(`自定义登录响应状态: ${response.status}`, 'info');
+                return response.json();
+            })
+            .then(result => {
+                log(`自定义登录响应: ${JSON.stringify(result)}`, 'info');
+                
+                if (result.stateCode === "1") {
+                    updateResult('customResult', '✅ 管理员登录成功！', true);
+                    log('自定义登录成功（管理员）', 'success');
+                } else if (result.stateCode === "2") {
+                    updateResult('customResult', '✅ 读者登录成功！', true);
+                    log('自定义登录成功（读者）', 'success');
+                } else if (result.stateCode === "0") {
+                    updateResult('customResult', '❌ 登录失败 - 账号或密码错误', false);
+                    log('自定义登录失败', 'error');
+                } else {
+                    updateResult('customResult', `⚠️ 未知响应: ${result.msg || '无消息'}`, false);
+                    log(`未知响应: ${JSON.stringify(result)}`, 'warning');
+                }
+            })
+            .catch(error => {
+                log(`自定义登录请求失败: ${error.message}`, 'error');
+                updateResult('customResult', `❌ 登录请求失败: ${error.message}`, false);
+            });
+        }
+
+        function openMainPage() {
+            window.open('http://localhost:9000/', '_blank');
+            log('打开主登录页面', 'info');
+        }
+
+        function openAdminPage() {
+            window.open('http://localhost:9000/admin_main.html', '_blank');
+            log('尝试打开管理员后台', 'info');
+        }
+
+        function openReaderPage() {
+            window.open('http://localhost:9000/reader_main.html', '_blank');
+            log('尝试打开读者页面', 'info');
+        }
+
+        // 页面加载时自动检查系统状态
+        window.onload = function() {
+            log('图书管理系统登录测试页面加载完成', 'info');
+            log('开始自动检查系统状态...', 'info');
+            setTimeout(checkSystemStatus, 1000);
+        };
+    </script>
+</body>
+</html>

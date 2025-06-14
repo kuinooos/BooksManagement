@@ -1,0 +1,48 @@
+# Maven target directory
+target/
+
+# IDE files
+.vscode/
+*.iml
+.idea/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Cookie files and debug files
+cookies*.txt
+debug_*.html
+search_result*.html
+test_*.html
+
+# Batch files (Windows specific startup scripts)
+*.bat
+
+# SQL files that might contain sensitive data
+*.sql
+
+# Log files
+*.log
+
+# Java compiled files
+*.class
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Configuration files that might contain sensitive information
+application-*.properties
+application-*.yml
